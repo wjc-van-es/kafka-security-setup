@@ -118,7 +118,7 @@ Your understanding is **mostly correct**, but there are some important nuances d
 
 ## Docker-internal clients (service-to-service)
 
-✅ **Correct**: If clients inside the Docker network connect using the service name (e.g., `broker-n` or `broker-n.hostname` as defined in `docker-compose.yml`), the certificate must have that name in either the **CN** or **SAN**.[^2_4][^2_5][^2_6]
+✅ **Correct**: If clients inside the Docker network connect using the service name (e.g., `broker-n` or `broker-n.hostname` as defined in `../../docker-compose-plain.yml`), the certificate must have that name in either the **CN** or **SAN**.[^2_4][^2_5][^2_6]
 
 However, **best practice is to use SAN, not CN**. While Kafka will check both fields, CN-based hostname verification has been deprecated since 2000, and SAN is more flexible and RFC-2818 compliant.[^2_2][^2_7][^2_1]
 

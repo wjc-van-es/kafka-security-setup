@@ -77,7 +77,7 @@ h1,h2,h3,h4,h5 {
 
 ## Steps to get TLS encrypted connection between the Kafka broker cluster & its clients
 1. Here we are going to create a private key / public certificate pair to mimic one of a genuine CA. So in reallife
-   scenario's this is skipped. We create one using this script [`../pki/generate-ca.sh`](../pki/generate-ca.sh), which 
+   scenario's this is skipped. We create one using this script [`../tls`](../tls/generate-ca.sh), which
    uses the `openssl` CLI. To install
    1. On Debian based Ubuntu, Mint use:
       ```bash
@@ -91,4 +91,4 @@ h1,h2,h3,h4,h5 {
       running and match it with the one you want to use for your project:
       1. `java -XshowSettings:properties --version` or with SDKMan!
       2. `sdk current java` and change when needed, e.g.: `sdk use java 25.0.3-tem`
-   2. now run the script [`../pki/generate-truststore.sh`](../pki/generate-truststore.sh)
+   2. now run the script [`../tls`](../tls/generate-truststore.sh)

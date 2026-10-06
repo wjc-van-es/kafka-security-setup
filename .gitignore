@@ -40,3 +40,12 @@ luceneTestIndex/
 
 # Project specific
 generated/
+
+# Secrets
+keystores/
+*.csr
+*.pem
+*.slr
+creds
+.env
+

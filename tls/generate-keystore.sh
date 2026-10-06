@@ -22,6 +22,8 @@ then
   CN=$1
 fi
 
+# shellcheck disable=SC2290
+declare -r KEYSTORE_PATH="keystores/$CN.keystore.jks" # path relative to this script's location
 declare -r DN="CN=$CN, OU=$OU, O=$O, L=$L, ST=$ST, C=$C"
 declare -r SAN="DNS:$CN,DNS:localhost,IP:127.0.0.1"
 declare -r CA_ALIAS="ca-root"
@@ -35,17 +37,17 @@ declare -r VALIDITY_DAYS=3650 # will last 10 years
 # in real life it would be safer not to use the -storepass $PASSWORD -noprompt arguments and instead let the
 # command prompt for your secret password
 # 2>/dev/null will redirect sterr output to /dev/null to get rid of it without display
-echo "Commencing keystores/$CN.keystore.jks generation..."
+echo "Commencing $KEYSTORE_PATH generation..."
 echo "containing a key / certificate pair with DN=$DN and SAN=$SAN"
-keytool -keystore keystores/$CN.keystore.jks -alias $CN -genkey -keyalg RSA \
+keytool -keystore $KEYSTORE_PATH -alias $CN -genkey -keyalg RSA \
 -storetype pkcs12 -storepass $PASSWORD -keypass $PASSWORD -validity $VALIDITY_DAYS \
 -dname "$DN" -ext "SAN=$SAN"
 wait
-echo "Generation of keystores/$CN.keystore.jks completed."
+echo "Generation of $KEYSTORE_PATH completed."
 
 # Generate Certificate Signing Request (CSR) using the newly created KeyStore
 echo "Commencing $CSR_FILE generation..."
-keytool -certreq -keystore keystores/$CN.keystore.jks -alias $CN -file $CSR_FILE \
+keytool -certreq -keystore $KEYSTORE_PATH -alias $CN -file $CSR_FILE \
 -storepass $PASSWORD -ext "SAN=$SAN"
 wait
 echo "Generation of $CSR_FILE completed."
@@ -70,16 +72,16 @@ wait
 echo "Generation of $SIGNED_CSR_FILE completed."
 
 # Import ROOT CA certificate into Keystore
-echo "Commencing import of $CA_CERT_FILE into keystores/$CN.keystore.jks..."
-keytool -importcert -keystore keystores/$CN.keystore.jks -alias $CA_ALIAS -file $CA_CERT_FILE -storepass $PASSWORD
+echo "Commencing import of $CA_CERT_FILE into $KEYSTORE_PATH..."
+keytool -importcert -keystore $KEYSTORE_PATH -alias $CA_ALIAS -file $CA_CERT_FILE -storepass $PASSWORD
 wait
-echo "Import of $CA_CERT_FILE into keystores/$CN.keystore.jks completed."
+echo "Import of $CA_CERT_FILE into $KEYSTORE_PATH completed."
 
 # Import newly signed certificate into Keystore
-echo "Commencing import $SIGNED_CSR_FILE into keystores/$CN.keystore.jks..."
-keytool -importcert -keystore keystores/$CN.keystore.jks -alias $CN -file $SIGNED_CSR_FILE -storepass $PASSWORD
+echo "Commencing import $SIGNED_CSR_FILE into $KEYSTORE_PATH..."
+keytool -importcert -keystore $KEYSTORE_PATH -alias $CN -file $SIGNED_CSR_FILE -storepass $PASSWORD
 wait
-echo "Import $SIGNED_CSR_FILE into keystores/$CN.keystore.jks completed."
+echo "Import $SIGNED_CSR_FILE into $KEYSTORE_PATH completed."
 
 # Clean-up is convenient if you want to make several keystores in a row (for multiple brokers)
 # Comment out when you want to debug your proces by validating these artifacts

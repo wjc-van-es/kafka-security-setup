@@ -16,12 +16,7 @@
         <confluent.maven.repo>https://packages.confluent.io/maven/</confluent.maven.repo>
 
         <kafka-clients.version>4.2.1</kafka-clients.version>
-<!--        <kafka-avro-serializer.version>8.2.3</kafka-avro-serializer.version>-->
-<!--        <avro.version>1.12.2</avro.version>-->
         <slf4j-reload4j.version>2.0.19</slf4j-reload4j.version>
-<!--        <lombok.version>1.18.48</lombok.version>-->
-<!--        <javafaker.version>1.0.2</javafaker.version>-->
-<!--        <avro-maven-plugin.version>1.12.2</avro-maven-plugin.version>-->
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     </properties>
 
@@ -75,21 +70,15 @@
                 <artifactId>slf4j-reload4j</artifactId>
                 <version>${slf4j-reload4j.version}</version>
             </dependency>
-            <!--<dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
-            </dependency>-->
-            <!--<dependency>
-                <groupId>com.github.javafaker</groupId>
-                <artifactId>javafaker</artifactId>
-                <version>${javafaker.version}</version>
-            </dependency>-->
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka-clients.version}</version>
+        </dependency>
         <!-- Helper Dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -107,40 +96,6 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!--<plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>add-source</goal>
-                            </goals>
-                            <configuration>
-                                <sources>
-                                    <source>src/main/generated</source>
-                                </sources>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>-->
-                <!--<plugin>
-                    <groupId>org.apache.avro</groupId>
-                    <artifactId>avro-maven-plugin</artifactId>
-                    <version>${avro-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>schema</goal>
-                            </goals>
-                            <configuration>
-                                <sourceDirectory>${project.basedir}/src/main/resources/avro/</sourceDirectory>
-                                <outputDirectory>${project.basedir}/src/main/generated/</outputDirectory>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>-->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -149,17 +104,6 @@
                         <source>${java.version}</source>
                         <target>${java.version}</target>
                         <parameters>true</parameters>
-                        <!--<annotationProcessorPaths>
-                            &lt;!&ndash;
-                                Since JDK23+ we need to register Lombok as annotation processor,
-                                as the implicit annotation of annotations has been disabled!
-                             &ndash;&gt;
-                            <path>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
-                                <version>${lombok.version}</version>
-                            </path>
-                        </annotationProcessorPaths>-->
                     </configuration>
                 </plugin>
             </plugins>
