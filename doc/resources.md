@@ -56,6 +56,48 @@ h1,h2,h3,h4,h5 {
   - For the Confluent version 8.2:
     [https://docs.confluent.io/platform/8.2/installation/configuration/broker-configs.html#search-by-configuration-property-name](https://docs.confluent.io/platform/8.2/installation/configuration/broker-configs.html#search-by-configuration-property-name)
 
+## Docker compose
+
+### secrets
+- [https://docs.docker.com/compose/how-tos/use-secrets/](https://docs.docker.com/compose/how-tos/use-secrets/)
+  Yes, in the example for using secrets in a `compose.yml` file, the `db_password.txt` file is expected to be in the same directory as your `compose.yml` file, and it should contain just the password (or secret value) on a single line.
+
+Here’s how it works:
+
+- The Compose file defines the secret like this:
+  ```yaml
+  secrets:
+    db_password:
+      file: db_password.txt
+  ```
+- This means Docker Compose will read the contents of `db_password.txt` (located in the same directory as your Compose file unless you specify a different path).
+- The file should contain only the password (or secret value), typically on a single line, with no extra formatting.
+
+Example structure:
+```
+project-directory/
+├── compose.yml
+├── db_password.txt   # contains: mysecretpassword
+```
+
+When you deploy the stack, Docker Compose mounts the contents of `db_password.txt` into the container at 
+`/run/secrets/db_password`.
+
+Sources:
+- [https://docs.docker.com/compose/how-tos/use-secrets/](https://docs.docker.com/compose/how-tos/use-secrets/)
+- [https://docs.docker.com/engine/swarm/secrets/](https://docs.docker.com/engine/swarm/secrets/)
+
+The knowledge base does not specify whether the password in the secret file (such as db_password.txt) must end with a 
+line break. It only states that the file should contain the secret value, such as a password, and that this value will 
+be mounted into the container as a file at /run/secrets/<secret_name>.
+
+For best compatibility, it is common practice to include the password on a single line, but the documentation does not 
+require or mention a trailing line break.
+
+Sources:
+- [https://docs.docker.com/compose/how-tos/use-secrets/](https://docs.docker.com/compose/how-tos/use-secrets/)
+- [https://docs.docker.com/reference/compose-file/secrets/](https://docs.docker.com/reference/compose-file/secrets/)
+
 ## Q&A
 - signing a csr with `SAN` entries using `openssl`
 

@@ -48,4 +48,6 @@ keystores/
 *.srl
 creds
 .env
+*_password.txt
+
 

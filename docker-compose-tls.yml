@@ -1,0 +1,92 @@
+services:
+
+  broker-1:
+    image: confluentinc/cp-kafka:8.2.0
+    hostname: broker-1
+    container_name: broker-1
+    ports:
+      - "9094:9094"
+      - "9092:9092"
+      - "9101:9101"
+    volumes:
+      - ./tls/keystores:/etc/kafka/secrets:ro
+
+    # using an entrypoint to assign the content of the secrets files to their corresponding environment variables
+    # attempting to set them under environment will just assign the file path not the content of that file
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        set -euo pipefail
+        export KAFKA_SSL_KEYSTORE_PASSWORD="$(cat /run/secrets/keystore_password)"
+        export KAFKA_SSL_KEY_PASSWORD="$(cat /run/secrets/key_password)"
+        export KAFKA_SSL_TRUSTSTORE_PASSWORD="$(cat /run/secrets/truststore_password)"
+        exec /etc/confluent/docker/run
+    environment:
+      KAFKA_NODE_ID: 1
+
+      ### Broker SetUp ###
+      # De definitie van de gebruikte security protocollen.
+      # - CONTROLLER is er voor het kiezen van een leider bij meerdere brokers, nieuw in KRaft (dat voorheen door Zookeeper werd gedaan)
+      #              Daar zit geen security op: PLAINTEXT
+      # - BROKER is er een voor het verkeer tussen elementen binnen dit docker netwerk.
+      #          Daar zit geen security op: PLAINTEXT.
+      # - CLIENT is er een voor het verkeer tussen brokers en clients (consumers en producers).
+      #          Daar zit ook TLS encryptie op: SSL.
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >-
+        CONTROLLER:PLAINTEXT,
+        BROKER:PLAINTEXT,
+        CLIENT:SSL,
+        CLI:SSL
+      KAFKA_LISTENERS: >-
+        BROKER://broker-1:29092,
+        CONTROLLER://broker-1:29093,
+        CLIENT://0.0.0.0:9092,
+        CLI://0.0.0.0:9094
+      # De definitie van de gebruikte listeners naar buiten toe.
+      # - BROKER heeft als ip het ip van broker1 en als poort 29092. Deze is alleen binnen de compose bereikbaar.
+      # - CLIENT heeft als ip localhost en als poort 9092. Deze is van buiten de compose bereikbaar met localhost:9092.
+      KAFKA_ADVERTISED_LISTENERS: >-
+        BROKER://broker-1:29092,
+        CLIENT://localhost:9092,
+        CLI://broker-1:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'BROKER'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker-1:29093'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      # Replace CLUSTER_ID with a unique base64 UUID using "bin/kafka-storage.sh random-uuid"
+      # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
+      ### SSL configs
+      KAFKA_SSL_CLIENT_AUTH: none
+      KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: " "
+      KAFKA_SSL_KEYSTORE_TYPE: PKCS12
+      # De locatie van de keystore nodig voor tls. This keystore is generated in our project under
+      # tls/keystores/broker-1.keystore.jks in our project that is mapped under volumes to
+      # /etc/kafka/secrets/broker1.keystore.jks inside the broker's docker container
+      KAFKA_SSL_KEYSTORE_LOCATION: /etc/kafka/secrets/broker-1.keystore.jks
+      # De locatie van de truststore nodig voor tls. This keystore is generated in our project under
+      # tls/keystores/kafka.truststore.jks in our project that is mapped under volumes to
+      # /etc/kafka/secrets/kafka.truststore.jks inside the broker's docker container
+      KAFKA_SSL_TRUSTSTORE_LOCATION: /etc/kafka/secrets/kafka.truststore.jks
+
+    secrets:
+      - key_password
+      - keystore_password
+      - truststore_password
+
+secrets:
+  key_password:
+    file: ./key_password.txt
+  keystore_password:
+    file: ./keystore_password.txt
+  truststore_password:
+    file: ./truststore_password.txt
