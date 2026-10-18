@@ -47,7 +47,7 @@ h1,h2,h3,h4,h5 {
   - the environment variable is prefixed with `KAFKA_`
   - e.g. 
     - from property to env var: `controller.listener.names` -> `KAFKA_CONTROLLER_LISTENER_NAMES`
-    - or from env var to property picking one in [../docker-compose-tls.yml](../docker-compose-tls.yml)
+    - or from env var to property picking one in [../docker-compose-tls.yml](../../docker-compose-tls.yml)
       - `KAFKA_ADVERTISED_LISTENERS` -> `advertised.listeners`
       - `KAFKA_SSL_KEYSTORE_CREDENTIALS` -> `ssl.keystore.credentials`
 - The Kafka properties can be looked up online
